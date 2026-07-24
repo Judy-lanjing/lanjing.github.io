@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>海外仓库存流水与库龄店铺拆分</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+    }
+
+    .page { padding: 20px; }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    button {
+      height: 34px;
+      padding: 0 14px;
+      border: none;
+      border-radius: 4px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button.light { background: #e5e7eb; color: #111827; }
+    button.success { background: #16a34a; }
+    button.warning { background: #f59e0b; }
+
+    input, select, textarea {
+      height: 34px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 0 8px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    textarea {
+      height: 72px;
+      padding: 8px;
+      resize: vertical;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #d1d5db;
+    }
+
+    .tab {
+      padding: 10px 18px;
+      background: #e5e7eb;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .tab.active {
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      align-items: end;
+    }
+
+    .form-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-item label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .summary-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 14px;
+    }
+
+    .summary-item .label {
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .summary-item .value {
+      margin-top: 6px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .text-success { color: #16a34a; font-weight: 600; }
+    .text-danger { color: #dc2626; font-weight: 600; }
+    .text-warning { color: #d97706; font-weight: 600; }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      min-width: 1280px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f9fafb;
+      color: #374151;
+      white-space: nowrap;
+    }
+
+    .sku {
+      max-width: 220px;
+      word-break: break-all;
+    }
+
+    .product-name {
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tag-rule { background: #dcfce7; color: #166534; }
+    .tag-manual { background: #dbeafe; color: #1d4ed8; }
+    .tag-error { background: #fee2e2; color: #991b1b; }
+    .tag-basis { background: #f3f4f6; color: #374151; }
+
+    .link {
+      color: #2563eb;
+      cursor: pointer;
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .modal-mask {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: rgba(17, 24, 39, 0.45);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      width: 1080px;
+      max-height: 90vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .modal-body { padding: 20px; }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .rule-box {
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .detail-item .label {
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .detail-item .value {
+      color: #111827;
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .split-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 16px 0 8px;
+    }
+
+    .split-table input,
+    .split-table select {
+      width: 100%;
+    }
+
+    .check-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      margin-top: 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .check-panel .ok {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .check-panel .error {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .required { color: #dc2626; }
+    .readonly { background: #f9fafb; color: #6b7280; }
+
+    .trace-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .trace-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 12px;
+      background: #fafafa;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .trace-item .title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .sub-title {
+      margin: 14px 0 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .small-note {
+      color: #6b7280;
+      font-size: 12px;
+      margin-left: 8px;
+      font-weight: 400;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <h1>海外仓库存流水与库龄店铺拆分</h1>
+    <div>
+      <button class="light">导入文件</button>
+      <button class="light">导出拆分结果</button>
+      <button class="success">批量规则拆分</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('flow')">库存流水店铺拆分</div>
+    <div class="tab" onclick="switchTab('age')">库龄库存店铺拆分</div>
+  </div>
+
+  <!-- 库存流水 -->
+  <div id="tab-flow" class="tab-content active">
+    <div class="card">
+      <div class="filter-grid">
+        <div class="form-item">
+          <label>仓库服务商</label>
+          <select><option>全部</option><option>西邮</option><option>谷仓</option><option>链仓</option></select>
+        </div>
+        <div class="form-item">
+          <label>仓库代码</label>
+          <input placeholder="如 WPLA11 / DUS-12" />
+        </div>
+        <div class="form-item">
+          <label>国家</label>
+          <select><option>全部</option><option>美国</option><option>德国</option></select>
+        </div>
+        <div class="form-item">
+          <label>变动类型</label>
+          <select><option>全部</option><option>ship</option><option>receive</option><option>售后上架</option><option>出库 - 一件代发</option></select>
+        </div>
+        <div class="form-item">
+          <label>拆分依据</label>
+          <select><option>全部</option><option>订单匹配</option><option>入库单匹配</option><option>人工判断</option></select>
+        </div>
+        <div class="form-item">
+          <label>拆分状态</label>
+          <select><option>全部</option><option>规则拆分</option><option>人工拆分</option><option>异常</option></select>
+        </div>
+
+        <div class="form-item">
+          <label>ERPSKU / 参考单号</label>
+          <input placeholder="请输入关键词" />
+        </div>
+        <div class="form-item">
+          <label>店铺</label>
+          <select><option>全部</option><option>Agilestic</option><option>Klicelor</option><option>Wayfair-A店铺</option></select>
+        </div>
+        <div class="form-item">
+          <label>开始时间</label>
+          <input type="date" />
+        </div>
+        <div class="form-item">
+          <label>结束时间</label>
+          <input type="date" />
+        </div>
+        <div class="form-item">
+          <label>&nbsp;</label>
+          <button>查询</button>
+        </div>
+        <div class="form-item">
+          <label>&nbsp;</label>
+          <button class="light">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="summary">
+        <div class="summary-item">
+          <div class="label">流水总数</div>
+          <div class="value">1,286</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">规则拆分</div>
+          <div class="value text-success">958</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">人工拆分</div>
+          <div class="value">291</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">异常</div>
+          <div class="value text-danger">37</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+          <tr>
+            <th><input type="checkbox" /></th>
+            <th>仓库服务商</th>
+            <th>仓库代码</th>
+            <th>国家/区域</th>
+            <th>一级类目</th>
+            <th>产品款式</th>
+            <th>ERPSKU</th>
+            <th>参考单号</th>
+            <th>流水数量</th>
+            <th>变动类型</th>
+            <th>操作时间</th>
+            <th>拆分店铺及数量</th>
+            <th>拆分依据</th>
+            <th>拆分状态</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>西邮</td>
+            <td>WPLA11</td>
+            <td>美国 / 美西</td>
+            <td>升降桌</td>
+            <td>单电机一型上双款</td>
+            <td class="sku">GG.01.09.A107.A482415A1.V220</td>
+            <td>XHQ02-260723-00037</td>
+            <td class="text-danger">-1</td>
+            <td>ship</td>
+            <td>2026-07-23 22:35</td>
+            <td>Agilestic：-1</td>
+            <td><span class="tag tag-basis">订单匹配</span></td>
+            <td><span class="tag tag-rule">规则拆分</span></td>
+            <td>
+              <span class="link" onclick="openModal('flow','view')">查看</span>
+              <span class="link" onclick="openModal('flow','edit')">调整</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>谷仓</td>
+            <td>DUS-12</td>
+            <td>德国</td>
+            <td>电脑桌</td>
+            <td>钢木L型小转角上置物侧袋灯带款</td>
+            <td class="sku">X.01.01.12.A63B1</td>
+            <td>XHQ02-260722-00031</td>
+            <td class="text-success">30</td>
+            <td>receive</td>
+            <td>2026-07-22 03:13</td>
+            <td>Agilestic：10；Klicelor：20</td>
+            <td><span class="tag tag-basis">入库单匹配</span></td>
+            <td><span class="tag tag-rule">规则拆分</span></td>
+            <td>
+              <span class="link" onclick="openModal('flow','view')">查看</span>
+              <span class="link" onclick="openModal('flow','edit')">调整</span>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>西邮</td>
+            <td>DE02</td>
+            <td>德国</td>
+            <td>电脑桌</td>
+            <td>餐柜坑纹2门</td>
+            <td class="sku">GG.01.08.A107.A552415A6.V220</td>
+            <td>XHQ02-260722-00018</td>
+            <td class="text-danger">-1</td>
+            <td>otherReceivingOutbound</td>
+            <td>2026-07-22 01:52</td>
+            <td>未拆分</td>
+            <td><span class="tag tag-basis">人工判断</span></td>
+            <td><span class="tag tag-error">异常</span></td>
+            <td>
+              <span class="link" onclick="openModal('flow','view')">查看</span>
+              <span class="link" onclick="openModal('flow','split')">拆分</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <span>共 1,286 条</span>
+        <button class="light">上一页</button>
+        <span>1 / 65</span>
+        <button class="light">下一页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 库龄 -->
+  <div id="tab-age" class="tab-content">
+    <div class="card">
+      <div class="filter-grid">
+        <div class="form-item">
+          <label>仓库服务商</label>
+          <select><option>全部</option><option>西邮</option><option>谷仓</option></select>
+        </div>
+        <div class="form-item">
+          <label>仓库</label>
+          <input placeholder="如 WPLA11 / DE[德国区]" />
+        </div>
+        <div class="form-item">
+          <label>库存类型</label>
+          <select><option>全部</option><option>标准</option><option>退货</option></select>
+        </div>
+        <div class="form-item">
+          <label>库龄区间</label>
+          <select><option>全部</option><option>0-30天</option><option>31-90天</option><option>91-180天</option><option>181-365天</option><option>365天以上</option></select>
+        </div>
+        <div class="form-item">
+          <label>拆分依据</label>
+          <select><option>全部</option><option>订单匹配</option><option>入库单匹配</option><option>人工判断</option></select>
+        </div>
+        <div class="form-item">
+          <label>拆分状态</label>
+          <select><option>全部</option><option>规则拆分</option><option>人工拆分</option><option>异常</option></select>
+        </div>
+
+        <div class="form-item">
+          <label>SKU / 产品代码</label>
+          <input placeholder="请输入 SKU 或条码" />
+        </div>
+        <div class="form-item">
+          <label>相关单据</label>
+          <input placeholder="如 RV-XHQ02-250926-0003" />
+        </div>
+        <div class="form-item">
+          <label>店铺</label>
+          <select><option>全部</option><option>Agilestic</option><option>Klicelor</option><option>Wayfair-A店铺</option></select>
+        </div>
+        <div class="form-item">
+          <label>最小库龄</label>
+          <input type="number" placeholder="如 180" />
+        </div>
+        <div class="form-item">
+          <label>&nbsp;</label>
+          <button>查询</button>
+        </div>
+        <div class="form-item">
+          <label>&nbsp;</label>
+          <button class="light">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="summary">
+        <div class="summary-item">
+          <div class="label">库龄记录数</div>
+          <div class="value">3,642</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">规则拆分</div>
+          <div class="value text-success">2,781</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">人工拆分</div>
+          <div class="value">624</div>
+        </div>
+        <div class="summary-item">
+          <div class="label">异常</div>
+          <div class="value text-danger">237</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+          <tr>
+            <th><input type="checkbox" /></th>
+            <th>仓库服务商</th>
+            <th>产品代码</th>
+            <th>产品SKU</th>
+            <th>产品名称</th>
+            <th>产品类型</th>
+            <th>仓库</th>
+            <th>库存类型</th>
+            <th>库存数量</th>
+            <th>可售数量</th>
+            <th>库龄</th>
+            <th>相关单据</th>
+            <th>创建人</th>
+            <th>拆分店铺及数量</th>
+            <th>拆分依据</th>
+            <th>拆分状态</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>西邮</td>
+            <td class="sku">XHQ02-GG.01.04.A107.A482415A1.V220</td>
+            <td class="sku">GG.01.04.A107.A482415A1.V220</td>
+            <td class="product-name">大导程智能升降桌</td>
+            <td>大件产品</td>
+            <td>WPLA11</td>
+            <td>标准</td>
+            <td class="text-success">55</td>
+            <td>55</td>
+            <td class="text-warning">271</td>
+            <td>RV-XHQ02-250926-0003</td>
+            <td>Bella</td>
+            <td>Agilestic：20；Klicelor：35</td>
+            <td><span class="tag tag-basis">入库单匹配</span></td>
+            <td><span class="tag tag-rule">规则拆分</span></td>
+            <td>
+              <span class="link" onclick="openModal('age','view')">查看</span>
+              <span class="link" onclick="openModal('age','edit')">调整</span>
+            </td>
+          </tr>
+
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>西邮</td>
+            <td class="sku">XHQ02-X.01.03.04.G0303</td>
+            <td class="sku">X.01.03.04.G0303</td>
+            <td class="product-name">藤编4门餐柜</td>
+            <td>小件产品</td>
+            <td>WPLA11</td>
+            <td>退货</td>
+            <td class="text-success">1</td>
+            <td>1</td>
+            <td class="text-warning">330</td>
+            <td>DC-124-250822-00000011</td>
+            <td>OMS-上海迅华奇科技有限公司</td>
+            <td>Wayfair-A店铺：1</td>
+            <td><span class="tag tag-basis">订单匹配</span></td>
+            <td><span class="tag tag-rule">规则拆分</span></td>
+            <td>
+              <span class="link" onclick="openModal('age','view')">查看</span>
+              <span class="link" onclick="openModal('age','edit')">调整</span>
+            </td>
+          </tr>
+
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>谷仓</td>
+            <td class="sku">X.01.04.22.E7821</td>
+            <td class="sku">X.01.04.22.E7821</td>
+            <td class="product-name">桌板框架 / DESK FRAME</td>
+            <td>大件产品</td>
+            <td>DE[德国区]</td>
+            <td>标准</td>
+            <td class="text-success">119</td>
+            <td>119</td>
+            <td class="text-warning">164</td>
+            <td>上架时间：2026-02-09</td>
+            <td>-</td>
+            <td>Agilestic：50；Klicelor：69</td>
+            <td><span class="tag tag-basis">入库单匹配</span></td>
+            <td><span class="tag tag-rule">规则拆分</span></td>
+            <td>
+              <span class="link" onclick="openModal('age','view')">查看</span>
+              <span class="link" onclick="openModal('age','edit')">调整</span>
+            </td>
+          </tr>
+
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>谷仓</td>
+            <td class="sku">AG.01.26.A107.E552415A1.V220</td>
+            <td class="sku">AG.01.26.A107.E552415A1.V220</td>
+            <td class="product-name">大导程智能升降桌</td>
+            <td>大件产品</td>
+            <td>DE[德国区]</td>
+            <td>标准</td>
+            <td class="text-success">14</td>
+            <td>14</td>
+            <td class="text-warning">160</td>
+            <td>上架时间：2026-02-13</td>
+            <td>-</td>
+            <td>未拆分</td>
+            <td><span class="tag tag-basis">人工判断</span></td>
+            <td><span class="tag tag-error">异常</span></td>
+            <td>
+              <span class="link" onclick="openModal('age','view')">查看</span>
+              <span class="link" onclick="openModal('age','split')">拆分</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <span>共 3,642 条</span>
+        <button class="light">上一页</button>
+        <span>1 / 183</span>
+        <button class="light">下一页</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-mask" id="splitModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">店铺拆分</h2>
+      <button class="light" onclick="closeModal()">关闭</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="rule-box" id="ruleBox"></div>
+
+      <div class="detail-grid" id="detailGrid"></div>
+
+      <div class="sub-title" id="traceTitle">追溯链路</div>
+      <div class="trace-box" id="traceBox"></div>
+
+      <div class="split-toolbar">
+        <strong>店铺拆分明细 <span class="required">*</span></strong>
+        <button class="light editable-btn" onclick="addRow()">新增店铺</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="split-table">
+          <thead>
+          <tr>
+            <th style="width: 32%;">店铺</th>
+            <th style="width: 18%;">拆分数量</th>
+            <th style="width: 18%;" id="sellableHeader">可售拆分数量</th>
+            <th style="width: 22%;">拆分依据</th>
+            <th style="width: 10%;">操作</th>
+          </tr>
+          </thead>
+          <tbody id="splitBody"></tbody>
+        </table>
+      </div>
+
+      <div class="check-panel">
+        <div>
+          原始数量：
+          <strong id="originQtyText">0</strong>
+          ，已拆分数量：
+          <strong id="splitQtyText">0</strong>
+          ，差异：
+          <strong id="diffQtyText">0</strong>
+          <span id="sellableCheckText"></span>
+        </div>
+        <div id="checkResult" class="ok">校验通过</div>
+      </div>
+
+      <div style="margin-top: 16px;">
+        <div class="form-item">
+          <label>人工判断说明 <span class="required">*</span></label>
+          <textarea id="manualReason" class="editable-field" placeholder="当拆分依据为人工判断时必填。"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="light" onclick="closeModal()">取消</button>
+      <button class="success editable-btn" onclick="submitSplit()">保存拆分</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentType = "flow";
+  let currentMode = "view";
+  let originQty = 0;
+  let originSellableQty = 0;
+
+  function switchTab(tab) {
+    document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(item => item.classList.remove("active"));
+    if (tab === "flow") {
+      document.querySelectorAll(".tab")[0].classList.add("active");
+      document.getElementById("tab-flow").classList.add("active");
+    } else {
+      document.querySelectorAll(".tab")[1].classList.add("active");
+      document.getElementById("tab-age").classList.add("active");
+    }
+  }
+
+  function detailItem(label, value) {
+    return `
+      <div class="detail-item">
+        <div class="label">${label}</div>
+        <div class="value">${value}</div>
+      </div>`;
+  }
+
+  function openModal(type, mode) {
+    currentType = type;
+    currentMode = mode;
+
+    const modalTitle = document.getElementById("modalTitle");
+    const ruleBox = document.getElementById("ruleBox");
+    const detailGrid = document.getElementById("detailGrid");
+    const traceBox = document.getElementById("traceBox");
+    const sellableHeader = document.getElementById("sellableHeader");
+    const traceTitle = document.getElementById("traceTitle");
+
+    if (type === "flow") {
+      originQty = 30;
+      originSellableQty = 0;
+      sellableHeader.style.display = "none";
+      traceTitle.innerText = "追溯链路";
+
+      modalTitle.innerText =
+        mode === "view" ? "查看库存流水店铺拆分" :
+        mode === "edit" ? "调整库存流水店铺拆分" :
+        "库存流水人工拆分";
+
+      ruleBox.innerHTML = `
+        <strong>库存流水拆分规则：</strong><br />
+        1. 出库类流水通过订单匹配店铺；<br />
+        2. 入库类流水通过入库单匹配店铺；<br />
+        3. 无法自动识别时，由人工判断；<br />
+        4. 拆分数量合计必须等于流水原始数量。
+      `;
+
+      detailGrid.innerHTML = `
+        ${detailItem("数据类型", "库存流水")}
+        ${detailItem("仓库服务商", "西邮")}
+        ${detailItem("仓库代码", "WPLA15")}
+        ${detailItem("国家/区域", "美国 / 美南")}
+        ${detailItem("ERPSKU", "X.01.01.12.A63B1")}
+        ${detailItem("参考单号", "XHQ02-260722-00031")}
+        ${detailItem("变动类型", "receive")}
+        ${detailItem("原始数量", '<span class="text-success">30</span>')}
+        ${detailItem("拆分依据", '<span class="tag tag-basis">入库单匹配</span>')}
+        ${detailItem("拆分状态", '<span class="tag tag-rule">规则拆分</span>')}
+        ${detailItem("操作时间", "2026-07-22 03:13")}
+        ${detailItem("当前结果", "Agilestic：10；Klicelor：20")}
+      `;
+
+      traceBox.innerHTML = `
+        <div class="trace-item">
+          <div class="title">1. 识别来源</div>
+          通过参考单号 <strong>XHQ02-260722-00031</strong> 匹配到入库单。
+        </div>
+        <div class="trace-item">
+          <div class="title">2. 入库拆分</div>
+          入库单已拆到店铺：Agilestic 10，Klicelor 20。
+        </div>
+        <div class="trace-item">
+          <div class="title">3. 当前库存归属</div>
+          当前流水数量 30，直接按入库归属形成店铺拆分结果。
+        </div>
+      `;
+
+      resetRows([
+        { store: "Agilestic", qty: 10, sellable: 0, basis: "入库单匹配" },
+        { store: "Klicelor", qty: 20, sellable: 0, basis: "入库单匹配" }
+      ]);
+    }
+
+    if (type === "age") {
+      originQty = 55;
+      originSellableQty = 55;
+      sellableHeader.style.display = "";
+      traceTitle.innerText = "追溯链路（入库归属 → 出库扣减 → 剩余归属）";
+
+      modalTitle.innerText =
+        mode === "view" ? "查看库龄库存店铺拆分" :
+        mode === "edit" ? "调整库龄库存店铺拆分" :
+        "库龄库存人工拆分";
+
+      ruleBox.innerHTML = `
+        <strong>库龄拆分规则：</strong><br />
+        1. 库龄不按比例拆分，必须基于入库来源追溯；<br />
+        2. 优先根据相关单据匹配入库单，得到初始店铺归属；<br />
+        3. 再根据后续出库流水按店铺扣减，计算当前剩余归属；<br />
+        4. 退货库存优先按原订单归属；<br />
+        5. 最终拆分结果应反映“当前剩余库存属于哪个店铺”。
+      `;
+
+      detailGrid.innerHTML = `
+        ${detailItem("数据类型", "库龄库存")}
+        ${detailItem("仓库服务商", "西邮")}
+        ${detailItem("仓库", "WPLA11")}
+        ${detailItem("库存类型", "标准")}
+        ${detailItem("产品SKU", "GG.01.04.A107.A482415A1.V220")}
+        ${detailItem("产品名称", "大导程智能升降桌")}
+        ${detailItem("库存数量", '<span class="text-success">55</span>')}
+        ${detailItem("可售数量", '<span class="text-success">55</span>')}
+        ${detailItem("库龄", '<span class="text-warning">271 天</span>')}
+        ${detailItem("相关单据", "RV-XHQ02-250926-0003")}
+        ${detailItem("拆分依据", '<span class="tag tag-basis">入库单匹配</span>')}
+        ${detailItem("拆分状态", '<span class="tag tag-rule">规则拆分</span>')}
+      `;
+
+      traceBox.innerHTML = `
+        <div class="trace-item">
+          <div class="title">1. 初始入库归属</div>
+          入库单拆分结果：Agilestic 20，Klicelor 35。
+        </div>
+        <div class="trace-item">
+          <div class="title">2. 后续出库扣减</div>
+          后续流水中，Agilestic 已出库 0，Klicelor 已出库 0。
+        </div>
+        <div class="trace-item">
+          <div class="title">3. 当前剩余归属</div>
+          当前剩余仍归属：Agilestic 20，Klicelor 35。
+        </div>
+      `;
+
+      resetRows([
+        { store: "Agilestic", qty: 20, sellable: 20, basis: "入库单匹配" },
+        { store: "Klicelor", qty: 35, sellable: 35, basis: "入库单匹配" }
+      ]);
+    }
+
+    document.getElementById("splitModal").style.display = "flex";
+    setReadonly(mode === "view");
+    calcTotal();
+  }
+
+  function closeModal() {
+    document.getElementById("splitModal").style.display = "none";
+  }
+
+  function createRow(store, qty, sellable, basis) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <select class="editable-field">
+          <option ${store === "Agilestic" ? "selected" : ""}>Agilestic</option>
+          <option ${store === "Klicelor" ? "selected" : ""}>Klicelor</option>
+          <option ${store === "Mericonia" ? "selected" : ""}>Mericonia</option>
+          <option ${store === "TikTok!-美国" ? "selected" : ""}>TikTok!-美国</option>
+          <option ${store === "Wayfair-A店铺" ? "selected" : ""}>Wayfair-A店铺</option>
+        </select>
+      </td>
+      <td>
+        <input class="editable-field split-qty" type="number" value="${qty}" oninput="calcTotal()" />
+      </td>
+      <td class="sellable-cell">
+        <input class="editable-field split-sellable" type="number" value="${sellable}" oninput="calcTotal()" />
+      </td>
+      <td>
+        <select class="editable-field split-basis">
+          <option ${basis === "订单匹配" ? "selected" : ""}>订单匹配</option>
+          <option ${basis === "入库单匹配" ? "selected" : ""}>入库单匹配</option>
+          <option ${basis === "人工判断" ? "selected" : ""}>人工判断</option>
+        </select>
+      </td>
+      <td><span class="link editable-btn" onclick="removeRow(this)">删除</span></td>
+    `;
+
+    if (currentType === "flow") {
+      tr.querySelector(".sellable-cell").style.display = "none";
+    }
+    return tr;
+  }
+
+  function resetRows(rows) {
+    const tbody = document.getElementById("splitBody");
+    tbody.innerHTML = "";
+    rows.forEach(row => tbody.appendChild(createRow(row.store, row.qty, row.sellable, row.basis)));
+  }
+
+  function addRow() {
+    const tbody = document.getElementById("splitBody");
+    tbody.appendChild(createRow("Agilestic", 0, 0, "人工判断"));
+    setReadonly(false);
+    calcTotal();
+  }
+
+  function removeRow(el) {
+    el.closest("tr").remove();
+    calcTotal();
+  }
+
+  function calcTotal() {
+    let totalQty = 0;
+    let totalSellable = 0;
+
+    document.querySelectorAll(".split-qty").forEach(input => {
+      totalQty += Number(input.value || 0);
+    });
+
+    document.querySelectorAll(".split-sellable").forEach(input => {
+      totalSellable += Number(input.value || 0);
+    });
+
+    const diffQty = totalQty - originQty;
+    const diffSellable = totalSellable - originSellableQty;
+
+    document.getElementById("originQtyText").innerText = originQty;
+    document.getElementById("splitQtyText").innerText = totalQty;
+    document.getElementById("diffQtyText").innerText = diffQty;
+
+    const sellableCheckText = document.getElementById("sellableCheckText");
+    const checkResult = document.getElementById("checkResult");
+
+    if (currentType === "age") {
+      sellableCheckText.innerHTML =
+        `，原可售：<strong>${originSellableQty}</strong>，已拆可售：<strong>${totalSellable}</strong>，可售差异：<strong>${diffSellable}</strong>`;
+    } else {
+      sellableCheckText.innerHTML = "";
+    }
+
+    if (diffQty === 0 && (currentType === "flow" || diffSellable === 0)) {
+      checkResult.innerText = "校验通过";
+      checkResult.className = "ok";
+    } else {
+      checkResult.innerText = "校验不通过：拆分数量必须与原始数量一致";
+      checkResult.className = "error";
+    }
+  }
+
+  function setReadonly(readonly) {
+    document.querySelectorAll(".editable-field").forEach(field => {
+      field.disabled = readonly;
+      if (readonly) field.classList.add("readonly");
+      else field.classList.remove("readonly");
+    });
+
+    document.querySelectorAll(".editable-btn").forEach(btn => {
+      btn.style.display = readonly ? "none" : "inline-block";
+    });
+  }
+
+  function submitSplit() {
+    let totalQty = 0;
+    let totalSellable = 0;
+    let hasManual = false;
+
+    document.querySelectorAll(".split-qty").forEach(input => {
+      totalQty += Number(input.value || 0);
+    });
+
+    document.querySelectorAll(".split-sellable").forEach(input => {
+      totalSellable += Number(input.value || 0);
+    });
+
+    document.querySelectorAll(".split-basis").forEach(select => {
+      if (select.value === "人工判断") hasManual = true;
+    });
+
+    if (totalQty !== originQty) {
+      alert("拆分数量不平，请调整后保存。");
+      return;
+    }
+
+    if (currentType === "age" && totalSellable !== originSellableQty) {
+      alert("可售数量拆分不平，请调整后保存。");
+      return;
+    }
+
+    const reason = document.getElementById("manualReason").value.trim();
+    if (hasManual && !reason) {
+      alert("存在人工判断的拆分依据，请填写人工判断说明。");
+      return;
+    }
+
+    alert("保存成功，拆分状态更新为：人工拆分。");
+    closeModal();
+  }
+</script>
+</body>
+</html>

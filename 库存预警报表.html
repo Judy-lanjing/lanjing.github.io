@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>库存预警报表</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #fff;
+      --text: #1f2329;
+      --muted: #646a73;
+      --line: #e5e6eb;
+      --blue: #165dff;
+      --green: #00b42a;
+      --orange: #f7ba1e;
+      --red: #f53f3f;
+      --purple: #722ed1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header,
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .header {
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr)) auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      min-height: 62px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 12px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field input::placeholder {
+      color: #9ca0a8;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding-bottom: 2px;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .panel {
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .update-time {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .metric-value {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .tag-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .count {
+      min-width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.22);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .red { background: rgba(245, 63, 63, 0.10); color: var(--red); border-color: rgba(245, 63, 63, 0.18); }
+    .orange { background: rgba(247, 186, 30, 0.12); color: #9a6b00; border-color: rgba(247, 186, 30, 0.22); }
+    .purple { background: rgba(114, 46, 209, 0.10); color: var(--purple); border-color: rgba(114, 46, 209, 0.18); }
+    .blue { background: rgba(22, 93, 255, 0.10); color: var(--blue); border-color: rgba(22, 93, 255, 0.18); }
+    .green { background: rgba(0, 180, 42, 0.10); color: var(--green); border-color: rgba(0, 180, 42, 0.18); }
+
+    .tabs {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .tab {
+      border: 0;
+      background: #fff;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: rgba(22, 93, 255, 0.08);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      min-width: 1300px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #fafbfc;
+      color: #3a3f45;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    tbody td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 12px;
+      vertical-align: top;
+    }
+
+    tbody tr:hover td {
+      background: #fbfcfe;
+    }
+
+    .row-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .small-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      line-height: 18px;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .small-tag.red { background: rgba(245, 63, 63, 0.10); color: var(--red); border-color: rgba(245, 63, 63, 0.18); }
+    .small-tag.orange { background: rgba(247, 186, 30, 0.12); color: #9a6b00; border-color: rgba(247, 186, 30, 0.22); }
+    .small-tag.purple { background: rgba(114, 46, 209, 0.10); color: var(--purple); border-color: rgba(114, 46, 209, 0.18); }
+    .small-tag.blue { background: rgba(22, 93, 255, 0.10); color: var(--blue); border-color: rgba(22, 93, 255, 0.18); }
+    .small-tag.green { background: rgba(0, 180, 42, 0.10); color: var(--green); border-color: rgba(0, 180, 42, 0.18); }
+    .small-tag.gray { background: rgba(100, 106, 115, 0.10); color: var(--muted); border-color: rgba(100, 106, 115, 0.18); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="title">库存预警报表</div>
+      <div class="filters">
+        <div class="field">
+          <label>店铺</label>
+          <select>
+            <option>全部</option>
+            <option>Agilestic</option>
+            <option>Mericonia</option>
+            <option>Wayfair-A店铺</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>国家</label>
+          <select>
+            <option>全部</option>
+            <option>美国</option>
+            <option>加拿大</option>
+            <option>德国</option>
+            <option>英国</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>仓库服务商</label>
+          <select>
+            <option>全部</option>
+            <option>西邮</option>
+            <option>链仓</option>
+            <option>谷仓</option>
+            <option>亚马逊</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>仓库代码</label>
+          <select>
+            <option>全部</option>
+            <option>CA003</option>
+            <option>NJ006</option>
+            <option>TX001</option>
+            <option>FBA</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>预警标签</label>
+          <select>
+            <option>全部</option>
+            <option>断货</option>
+            <option>滞销</option>
+            <option>超龄</option>
+            <option>SFP-低于安全库存</option>
+            <option>SFP-未全仓覆盖</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>MSKU</label>
+          <input type="text" placeholder="请输入MSKU" />
+        </div>
+        <div class="field">
+          <label>SKU</label>
+          <input type="text" placeholder="请输入SKU" />
+        </div>
+        <div class="actions">
+          <button class="btn primary">查询</button>
+          <button class="btn">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">预警概览</div>
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('tab1', this)">店铺-分仓库存</button>
+          <button class="tab" onclick="switchTab('tab2', this)">店铺-全链路库存</button>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">预警SKU总数</div>
+          <div class="metric-value" style="color: var(--red);">12</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">断货预警</div>
+          <div class="metric-value" style="color: var(--red);">6</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">超龄预警</div>
+          <div class="metric-value" style="color: var(--orange);">28</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">滞销预警</div>
+          <div class="metric-value" style="color: var(--purple);">9</div>
+        </div>
+      </div>
+
+      <div class="tag-group">
+        <div class="tag red">断货 <span class="count">6</span></div>
+        <div class="tag orange">超龄 <span class="count">28</span></div>
+        <div class="tag purple">滞销 <span class="count">9</span></div>
+        <div class="tag blue">SFP-低于安全库存 <span class="count">4</span></div>
+        <div class="tag green">SFP-未全仓覆盖 <span class="count">84</span></div>
+      </div>
+    </div>
+
+    <div class="panel section active" id="tab1">
+      <div class="panel-head">
+        <div class="panel-title">店铺-分仓库存明细</div>
+        <div class="update-time">更新时间：2025-01-20 14:32:18</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>库存时间</th>
+              <th>店铺名称</th>
+              <th>国家</th>
+              <th>一级类目</th>
+              <th>产品款式</th>
+              <th>SKU</th>
+              <th>MSKU</th>
+              <th>仓库代码</th>
+              <th>仓库区域</th>
+              <th>配送方式</th>
+              <th>ERPSKU状态</th>
+              <th>MSKU状态</th>
+              <th>可用库存</th>
+              <th>可售库存</th>
+              <th>0-30天</th>
+              <th>31-60天</th>
+              <th>61-90天</th>
+              <th>91-180天</th>
+              <th>预警标签</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>单电机一型极致基础款</td><td>WF-55RB</td><td>WFUS-DJ-55RB</td><td>CA003</td><td>美西</td><td>FBM</td><td>停用</td><td>状态未知</td><td>6</td><td>6</td><td>6</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag red">断货</span><span class="small-tag orange">超龄</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>餐柜拼花4门</td><td>WF-4DWA</td><td>WFUS-BC-PA-4DWA</td><td>NJ006</td><td>美东</td><td>FBM</td><td>停用</td><td>状态未知</td><td>35</td><td>35</td><td>0</td><td>35</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag purple">滞销</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>餐柜藤编2门</td><td>WF-2DNA</td><td>WFUS-BC-TGRA-2DNA</td><td>TX001</td><td>美南</td><td>FBM</td><td>停用</td><td>状态未知</td><td>28</td><td>28</td><td>28</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag blue">SFP-低于安全库存</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>单电机一型极致基础款4拼</td><td>AG-DJSP-55RB</td><td>AMZEU-AG-DJSP-55RB</td><td>FBA</td><td>德国</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>0</td><td>0</td><td>-</td><td>59</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag orange">超龄</span><span class="small-tag purple">滞销</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>单电机伪L基础款（左右互换）</td><td>AG-WL-59RB-R</td><td>AMZUS-AG-WL-59RB-R</td><td>NJ006</td><td>美东</td><td>FBM</td><td>正常使用</td><td>正常售卖品</td><td>55</td><td>55</td><td>20</td><td>-</td><td>-</td><td>-</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>单电机一型基础款700宽</td><td>AG-DJW-55W</td><td>AMZCA-AG-DJW-55W</td><td>FBA</td><td>加拿大</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>35</td><td>35</td><td>35</td><td>-</td><td>-</td><td>-</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>钢木L型洞洞板高架款</td><td>ME-LD-DDB-51BL</td><td>AMZUS-ME-LD-DDB-51BL</td><td>CA003</td><td>美西</td><td>FBM</td><td>正常使用</td><td>状态未知</td><td>27</td><td>27</td><td>27</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>钢木L型洞洞板高架款</td><td>ME-LD-DDB-51WH</td><td>AMZUS-ME-LD-DDB-51WH</td><td>TX001</td><td>美南</td><td>FBM</td><td>正常使用</td><td>状态未知</td><td>25</td><td>25</td><td>25</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>餐柜坑纹4门</td><td>WF-4DWH</td><td>WFUS-BC-FL-4DWH</td><td>TX001</td><td>美南</td><td>FBM</td><td>停用</td><td>状态未知</td><td>30</td><td>30</td><td>30</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag red">断货</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>单电机L型上置物灯光排插款</td><td>AG-WLDGPC-63B</td><td>AMZUS-AG-WLDGPC-63B</td><td>CA003</td><td>美西</td><td>FBM</td><td>停用</td><td>淘汰品</td><td>20</td><td>20</td><td>20</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag blue">SFP-未全仓覆盖</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel section" id="tab2">
+      <div class="panel-head">
+        <div class="panel-title">店铺-全链路库存明细</div>
+        <div class="update-time">更新时间：2025-01-20 14:32:18</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>库存时间</th>
+              <th>店铺名称</th>
+              <th>国家</th>
+              <th>一级类目</th>
+              <th>SKU</th>
+              <th>MSKU</th>
+              <th>配送方式</th>
+              <th>ERPSKU状态</th>
+              <th>MSKU状态</th>
+              <th>在途库存</th>
+              <th>等待送仓</th>
+              <th>已送仓未上架</th>
+              <th>可用库存</th>
+              <th>可售库存</th>
+              <th>海外总库存</th>
+              <th>近30天销量</th>
+              <th>0-30天</th>
+              <th>31-60天</th>
+              <th>61-90天</th>
+              <th>91-180天</th>
+              <th>预警标签</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>AG-DJW-48B</td><td>AMZCA-AG-DJW-48B</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag red">断货</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>AG-DJW-48W</td><td>AMZCA-AG-DJW-48W</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>20</td><td>0</td><td>0</td><td>20</td><td>20</td><td>20</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>AG-DJW-48B-US</td><td>AMZUS-AG-DJW-48B</td><td>FBA</td><td>正常使用</td><td>停售</td><td>0</td><td>0</td><td>0</td><td>7</td><td>5</td><td>7</td><td>22</td><td>7</td><td>5</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag orange">超龄</span><span class="small-tag purple">滞销</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>AG-DJSP-55LRB-NEW</td><td>AMZEU-AG-DJSP-55LRB-NEW</td><td>FBA</td><td>待清全链路库存后停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>75</td><td>75</td><td>75</td><td>17</td><td>0</td><td>0</td><td>75</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag orange">超龄</span><span class="small-tag purple">滞销</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>AG-DJSP-55W-NEW</td><td>AMZEU-AG-DJSP-55W-NEW</td><td>FBA</td><td>停用</td><td>正常售卖品</td><td>0</td><td>0</td><td>0</td><td>50</td><td>0</td><td>50</td><td>86</td><td>0</td><td>0</td><td>-</td><td>50</td>
+              <td><div class="row-tags"><span class="small-tag purple">滞销</span><span class="small-tag orange">超龄</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>AG-WL-63W</td><td>AMZEU-AG-WL-63W</td><td>FBA</td><td>待清全链路库存后停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>45</td><td>0</td><td>1</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag red">断货</span><span class="small-tag purple">滞销</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>ME-RD-HB24-63WA-2</td><td>AMZUS-ME-RD-HB24-63WA-2</td><td>FBM</td><td>正常使用</td><td>新品</td><td>0</td><td>0</td><td>0</td><td>48</td><td>48</td><td>48</td><td>2</td><td>48</td><td>-</td><td>-</td><td>-</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>WF-SJ-63W</td><td>WFUS-SJ-63W</td><td>FBM</td><td>停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>15</td><td>15</td><td>15</td><td>11</td><td>15</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>WF-SDJ-YXWL-63B</td><td>WFUS-SDJ-YXWL-63B</td><td>FBM</td><td>待清全链路库存后停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>41</td><td>41</td><td>41</td><td>2</td><td>41</td><td>-</td><td>-</td><td>-</td>
+              <td><div class="row-tags"><span class="small-tag purple">滞销</span></div></td>
+            </tr>
+            <tr>
+              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>AG-WL-59W</td><td>AMZUS-AG-WL-59W</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>0</td><td>0</td><td>0</td><td>33</td><td>33</td><td>33</td><td>15</td><td>33</td><td>-</td><td>-</td><td>-</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(id, el) {
+      document.querySelectorAll('.section').forEach(function (node) {
+        node.classList.remove('active');
+      });
+      document.querySelectorAll('.tab').forEach(function (node) {
+        node.classList.remove('active');
+      });
+      document.getElementById(id).classList.add('active');
+      el.classList.add('active');
+    }
+  </script>
+</body>
+</html>
