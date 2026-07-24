@@ -7,7 +7,7 @@
   <style>
     :root {
       --bg: #f6f8fb;
-      --card: #fff;
+      --card: #ffffff;
       --text: #1f2329;
       --muted: #646a73;
       --line: #e5e6eb;
@@ -16,6 +16,7 @@
       --orange: #f7ba1e;
       --red: #f53f3f;
       --purple: #722ed1;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
     }
 
     * { box-sizing: border-box; }
@@ -49,7 +50,7 @@
     .title {
       font-size: 22px;
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .filters {
@@ -189,11 +190,35 @@
       font-weight: 700;
     }
 
-    .red { background: rgba(245, 63, 63, 0.10); color: var(--red); border-color: rgba(245, 63, 63, 0.18); }
-    .orange { background: rgba(247, 186, 30, 0.12); color: #9a6b00; border-color: rgba(247, 186, 30, 0.22); }
-    .purple { background: rgba(114, 46, 209, 0.10); color: var(--purple); border-color: rgba(114, 46, 209, 0.18); }
-    .blue { background: rgba(22, 93, 255, 0.10); color: var(--blue); border-color: rgba(22, 93, 255, 0.18); }
-    .green { background: rgba(0, 180, 42, 0.10); color: var(--green); border-color: rgba(0, 180, 42, 0.18); }
+    .red {
+      background: rgba(245, 63, 63, 0.10);
+      color: var(--red);
+      border-color: rgba(245, 63, 63, 0.18);
+    }
+
+    .orange {
+      background: rgba(247, 186, 30, 0.12);
+      color: #9a6b00;
+      border-color: rgba(247, 186, 30, 0.22);
+    }
+
+    .purple {
+      background: rgba(114, 46, 209, 0.10);
+      color: var(--purple);
+      border-color: rgba(114, 46, 209, 0.18);
+    }
+
+    .blue {
+      background: rgba(22, 93, 255, 0.10);
+      color: var(--blue);
+      border-color: rgba(22, 93, 255, 0.18);
+    }
+
+    .green {
+      background: rgba(0, 180, 42, 0.10);
+      color: var(--green);
+      border-color: rgba(0, 180, 42, 0.18);
+    }
 
     .tabs {
       display: inline-flex;
@@ -236,7 +261,7 @@
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      min-width: 1300px;
+      min-width: 1420px;
     }
 
     thead th {
@@ -280,18 +305,155 @@
       white-space: nowrap;
     }
 
-    .small-tag.red { background: rgba(245, 63, 63, 0.10); color: var(--red); border-color: rgba(245, 63, 63, 0.18); }
-    .small-tag.orange { background: rgba(247, 186, 30, 0.12); color: #9a6b00; border-color: rgba(247, 186, 30, 0.22); }
-    .small-tag.purple { background: rgba(114, 46, 209, 0.10); color: var(--purple); border-color: rgba(114, 46, 209, 0.18); }
-    .small-tag.blue { background: rgba(22, 93, 255, 0.10); color: var(--blue); border-color: rgba(22, 93, 255, 0.18); }
-    .small-tag.green { background: rgba(0, 180, 42, 0.10); color: var(--green); border-color: rgba(0, 180, 42, 0.18); }
-    .small-tag.gray { background: rgba(100, 106, 115, 0.10); color: var(--muted); border-color: rgba(100, 106, 115, 0.18); }
+    .small-tag.red {
+      background: rgba(245, 63, 63, 0.10);
+      color: var(--red);
+      border-color: rgba(245, 63, 63, 0.18);
+    }
+
+    .small-tag.orange {
+      background: rgba(247, 186, 30, 0.12);
+      color: #9a6b00;
+      border-color: rgba(247, 186, 30, 0.22);
+    }
+
+    .small-tag.purple {
+      background: rgba(114, 46, 209, 0.10);
+      color: var(--purple);
+      border-color: rgba(114, 46, 209, 0.18);
+    }
+
+    .small-tag.blue {
+      background: rgba(22, 93, 255, 0.10);
+      color: var(--blue);
+      border-color: rgba(22, 93, 255, 0.18);
+    }
+
+    .small-tag.green {
+      background: rgba(0, 180, 42, 0.10);
+      color: var(--green);
+      border-color: rgba(0, 180, 42, 0.18);
+    }
+
+    .log-btn {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .log-btn:hover {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.08);
+    }
+
+    .log-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: var(--blue);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.42);
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(980px, 100%);
+      max-height: 86vh;
+      overflow: hidden;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      border: 0;
+      background: transparent;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    .modal-body {
+      padding: 16px 18px 18px;
+      overflow: auto;
+    }
+
+    .modal-meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .modal-meta-item {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fafbfc;
+    }
+
+    .modal-meta-label {
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .modal-meta-value {
+      color: var(--text);
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .log-table {
+      min-width: 760px;
+    }
+
+    .log-table th,
+    .log-table td {
+      padding: 10px 10px;
+    }
   </style>
 </head>
 <body>
   <div class="page">
     <div class="header">
       <div class="title">库存预警报表</div>
+
       <div class="filters">
         <div class="field">
           <label>店铺</label>
@@ -400,10 +562,12 @@
         <div class="panel-title">店铺-分仓库存明细</div>
         <div class="update-time">更新时间：2025-01-20 14:32:18</div>
       </div>
+
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th>库存日志</th>
               <th>库存时间</th>
               <th>店铺名称</th>
               <th>国家</th>
@@ -427,44 +591,43 @@
           </thead>
           <tbody>
             <tr>
-              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>单电机一型极致基础款</td><td>WF-55RB</td><td>WFUS-DJ-55RB</td><td>CA003</td><td>美西</td><td>FBM</td><td>停用</td><td>状态未知</td><td>6</td><td>6</td><td>6</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag red">断货</span><span class="small-tag orange">超龄</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('AG-DJSP-55RB')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>单电机一型极致基础款4拼</td><td>AG-DJSP-55RB</td><td>AMZEU-AG-DJSP-55RB</td><td>FBA</td><td>德国</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>0</td><td>0</td><td>-</td><td>59</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag orange">超龄</span><span class="small-tag purple">滞销</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>餐柜拼花4门</td><td>WF-4DWA</td><td>WFUS-BC-PA-4DWA</td><td>NJ006</td><td>美东</td><td>FBM</td><td>停用</td><td>状态未知</td><td>35</td><td>35</td><td>0</td><td>35</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag purple">滞销</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('WF-55RB')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>单电机一型极致基础款</td><td>WF-55RB</td><td>WFUS-DJ-55RB</td><td>CA003</td><td>美西</td><td>FBM</td><td>停用</td><td>状态未知</td><td>6</td><td>6</td><td>6</td><td>-</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag red">断货</span><span class="small-tag orange">超龄</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>餐柜藤编2门</td><td>WF-2DNA</td><td>WFUS-BC-TGRA-2DNA</td><td>TX001</td><td>美南</td><td>FBM</td><td>停用</td><td>状态未知</td><td>28</td><td>28</td><td>28</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag blue">SFP-低于安全库存</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('WF-4DWA')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>餐柜拼花4门</td><td>WF-4DWA</td><td>WFUS-BC-PA-4DWA</td><td>NJ006</td><td>美东</td><td>FBM</td><td>停用</td><td>状态未知</td><td>35</td><td>35</td><td>0</td><td>35</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag purple">滞销</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>单电机一型极致基础款4拼</td><td>AG-DJSP-55RB</td><td>AMZEU-AG-DJSP-55RB</td><td>FBA</td><td>德国</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>0</td><td>0</td><td>-</td><td>59</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag orange">超龄</span><span class="small-tag purple">滞销</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('AG-WL-59RB-R')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>单电机伪L基础款（左右互换）</td><td>AG-WL-59RB-R</td><td>AMZUS-AG-WL-59RB-R</td><td>NJ006</td><td>美东</td><td>FBM</td><td>正常使用</td><td>正常售卖品</td><td>55</td><td>55</td><td>20</td><td>-</td><td>-</td><td>-</td><td></td></tr>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>单电机伪L基础款（左右互换）</td><td>AG-WL-59RB-R</td><td>AMZUS-AG-WL-59RB-R</td><td>NJ006</td><td>美东</td><td>FBM</td><td>正常使用</td><td>正常售卖品</td><td>55</td><td>55</td><td>20</td><td>-</td><td>-</td><td>-</td>
-              <td></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('AG-DJW-55W')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>单电机一型基础款700宽</td><td>AG-DJW-55W</td><td>AMZCA-AG-DJW-55W</td><td>FBA</td><td>加拿大</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>35</td><td>35</td><td>35</td><td>-</td><td>-</td><td>-</td><td></td></tr>
+            <tr>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('ME-LD-DDB-51BL')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>钢木L型洞洞板高架款</td><td>ME-LD-DDB-51BL</td><td>AMZUS-ME-LD-DDB-51BL</td><td>CA003</td><td>美西</td><td>FBM</td><td>正常使用</td><td>状态未知</td><td>27</td><td>27</td><td>27</td><td>-</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>单电机一型基础款700宽</td><td>AG-DJW-55W</td><td>AMZCA-AG-DJW-55W</td><td>FBA</td><td>加拿大</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>35</td><td>35</td><td>35</td><td>-</td><td>-</td><td>-</td>
-              <td></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('ME-LD-DDB-51WH')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>钢木L型洞洞板高架款</td><td>ME-LD-DDB-51WH</td><td>AMZUS-ME-LD-DDB-51WH</td><td>TX001</td><td>美南</td><td>FBM</td><td>正常使用</td><td>状态未知</td><td>25</td><td>25</td><td>25</td><td>-</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>钢木L型洞洞板高架款</td><td>ME-LD-DDB-51BL</td><td>AMZUS-ME-LD-DDB-51BL</td><td>CA003</td><td>美西</td><td>FBM</td><td>正常使用</td><td>状态未知</td><td>27</td><td>27</td><td>27</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('WF-4DWH')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>餐柜坑纹4门</td><td>WF-4DWH</td><td>WFUS-BC-FL-4DWH</td><td>TX001</td><td>美南</td><td>FBM</td><td>停用</td><td>状态未知</td><td>30</td><td>30</td><td>30</td><td>-</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag red">断货</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>钢木L型洞洞板高架款</td><td>ME-LD-DDB-51WH</td><td>AMZUS-ME-LD-DDB-51WH</td><td>TX001</td><td>美南</td><td>FBM</td><td>正常使用</td><td>状态未知</td><td>25</td><td>25</td><td>25</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('AG-WLDGPC-63B')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>单电机L型上置物灯光排插款</td><td>AG-WLDGPC-63B</td><td>AMZUS-AG-WLDGPC-63B</td><td>CA003</td><td>美西</td><td>FBM</td><td>停用</td><td>淘汰品</td><td>20</td><td>20</td><td>20</td><td>-</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag blue">SFP-未全仓覆盖</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>餐柜坑纹4门</td><td>WF-4DWH</td><td>WFUS-BC-FL-4DWH</td><td>TX001</td><td>美南</td><td>FBM</td><td>停用</td><td>状态未知</td><td>30</td><td>30</td><td>30</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag red">断货</span></div></td>
-            </tr>
-            <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>单电机L型上置物灯光排插款</td><td>AG-WLDGPC-63B</td><td>AMZUS-AG-WLDGPC-63B</td><td>CA003</td><td>美西</td><td>FBM</td><td>停用</td><td>淘汰品</td><td>20</td><td>20</td><td>20</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag blue">SFP-未全仓覆盖</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('AG-DJSP-55LRB-NEW')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>单电机一型极致基础款4拼</td><td>AG-DJSP-55LRB-NEW</td><td>AMZEU-AG-DJSP-55LRB-NEW</td><td>FBA</td><td>德国</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>12</td><td>12</td><td>12</td><td>-</td><td>-</td><td>-</td><td></td></tr>
             </tr>
           </tbody>
         </table>
@@ -476,10 +639,12 @@
         <div class="panel-title">店铺-全链路库存明细</div>
         <div class="update-time">更新时间：2025-01-20 14:32:18</div>
       </div>
+
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th>库存日志</th>
               <th>库存时间</th>
               <th>店铺名称</th>
               <th>国家</th>
@@ -505,47 +670,89 @@
           </thead>
           <tbody>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>AG-DJW-48B</td><td>AMZCA-AG-DJW-48B</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag red">断货</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('AG-DJSP-55RB')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>AG-DJSP-55RB</td><td>AMZEU-AG-DJSP-55RB</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>0</td><td>0</td><td>0</td><td>75</td><td>75</td><td>75</td><td>17</td><td>0</td><td>0</td><td>75</td><td>-</td><td><div class="row-tags"><span class="small-tag orange">超龄</span><span class="small-tag purple">滞销</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>AG-DJW-48W</td><td>AMZCA-AG-DJW-48W</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>20</td><td>0</td><td>0</td><td>20</td><td>20</td><td>20</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
-              <td></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('WF-55RB')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>WF-55RB</td><td>WFUS-DJ-55RB</td><td>FBM</td><td>停用</td><td>状态未知</td><td>1</td><td>0</td><td>0</td><td>6</td><td>6</td><td>7</td><td>10</td><td>6</td><td>-</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag red">断货</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>AG-DJW-48B-US</td><td>AMZUS-AG-DJW-48B</td><td>FBA</td><td>正常使用</td><td>停售</td><td>0</td><td>0</td><td>0</td><td>7</td><td>5</td><td>7</td><td>22</td><td>7</td><td>5</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag orange">超龄</span><span class="small-tag purple">滞销</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('WF-4DWA')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>板式</td><td>WF-4DWA</td><td>WFUS-BC-PA-4DWA</td><td>FBM</td><td>停用</td><td>状态未知</td><td>0</td><td>0</td><td>0</td><td>35</td><td>35</td><td>35</td><td>3</td><td>0</td><td>35</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag purple">滞销</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>AG-DJSP-55LRB-NEW</td><td>AMZEU-AG-DJSP-55LRB-NEW</td><td>FBA</td><td>待清全链路库存后停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>75</td><td>75</td><td>75</td><td>17</td><td>0</td><td>0</td><td>75</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag orange">超龄</span><span class="small-tag purple">滞销</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('AG-DJW-55W')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Agilestic</td><td>加拿大</td><td>升降桌</td><td>AG-DJW-55W</td><td>AMZCA-AG-DJW-55W</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>0</td><td>0</td><td>0</td><td>35</td><td>35</td><td>35</td><td>12</td><td>35</td><td>-</td><td>-</td><td>-</td><td></td></tr>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>AG-DJSP-55W-NEW</td><td>AMZEU-AG-DJSP-55W-NEW</td><td>FBA</td><td>停用</td><td>正常售卖品</td><td>0</td><td>0</td><td>0</td><td>50</td><td>0</td><td>50</td><td>86</td><td>0</td><td>0</td><td>-</td><td>50</td>
-              <td><div class="row-tags"><span class="small-tag purple">滞销</span><span class="small-tag orange">超龄</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('ME-LD-DDB-51BL')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>ME-LD-DDB-51BL</td><td>AMZUS-ME-LD-DDB-51BL</td><td>FBM</td><td>正常使用</td><td>新品</td><td>0</td><td>0</td><td>0</td><td>48</td><td>48</td><td>48</td><td>2</td><td>48</td><td>-</td><td>-</td><td>-</td><td></td></tr>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>德国</td><td>升降桌</td><td>AG-WL-63W</td><td>AMZEU-AG-WL-63W</td><td>FBA</td><td>待清全链路库存后停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>45</td><td>0</td><td>1</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag red">断货</span><span class="small-tag purple">滞销</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('ME-LD-DDB-51WH')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>ME-LD-DDB-51WH</td><td>AMZUS-ME-LD-DDB-51WH</td><td>FBM</td><td>正常使用</td><td>新品</td><td>0</td><td>0</td><td>0</td><td>25</td><td>25</td><td>25</td><td>1</td><td>25</td><td>-</td><td>-</td><td>-</td><td></td></tr>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Mericonia</td><td>美国</td><td>电脑桌</td><td>ME-RD-HB24-63WA-2</td><td>AMZUS-ME-RD-HB24-63WA-2</td><td>FBM</td><td>正常使用</td><td>新品</td><td>0</td><td>0</td><td>0</td><td>48</td><td>48</td><td>48</td><td>2</td><td>48</td><td>-</td><td>-</td><td>-</td>
-              <td></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('WF-SJ-63W')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>WF-SJ-63W</td><td>WFUS-SJ-63W</td><td>FBM</td><td>停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>15</td><td>15</td><td>15</td><td>7</td><td>15</td><td>-</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>WF-SJ-63W</td><td>WFUS-SJ-63W</td><td>FBM</td><td>停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>15</td><td>15</td><td>15</td><td>11</td><td>15</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag orange">超龄</span></div></td>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('WF-SDJ-YXWL-63B')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>WF-SDJ-YXWL-63B</td><td>WFUS-SDJ-YXWL-63B</td><td>FBM</td><td>待清全链路库存后停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>41</td><td>41</td><td>41</td><td>2</td><td>41</td><td>-</td><td>-</td><td>-</td><td><div class="row-tags"><span class="small-tag purple">滞销</span></div></td>
             </tr>
             <tr>
-              <td>2025-01-20</td><td>Wayfair-A店铺</td><td>美国</td><td>升降桌</td><td>WF-SDJ-YXWL-63B</td><td>WFUS-SDJ-YXWL-63B</td><td>FBM</td><td>待清全链路库存后停用</td><td>淘汰品</td><td>0</td><td>0</td><td>0</td><td>41</td><td>41</td><td>41</td><td>2</td><td>41</td><td>-</td><td>-</td><td>-</td>
-              <td><div class="row-tags"><span class="small-tag purple">滞销</span></div></td>
-            </tr>
-            <tr>
-              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>AG-WL-59W</td><td>AMZUS-AG-WL-59W</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>0</td><td>0</td><td>0</td><td>33</td><td>33</td><td>33</td><td>15</td><td>33</td><td>-</td><td>-</td><td>-</td>
-              <td></td>
-            </tr>
+              <td><button class="log-btn" title="查看库存日志" onclick="openLogModal('AG-WL-59W')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></button></td>
+              <td>2025-01-20</td><td>Agilestic</td><td>美国</td><td>升降桌</td><td>AG-WL-59W</td><td>AMZUS-AG-WL-59W</td><td>FBA</td><td>正常使用</td><td>正常售卖品</td><td>0</td><td>0</td><td>0</td><td>33</td><td>33</td><td>33</td><td>15</td><td>33</td><td>-</td><td>-</td><td>-</td><td></td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="logModal" onclick="closeLogModalByMask(event)">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="modal-title">库存日志</div>
+        <button class="modal-close" onclick="closeLogModal()" aria-label="关闭">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-meta">
+          <div class="modal-meta-item">
+            <div class="modal-meta-label">SKU</div>
+            <div class="modal-meta-value" id="modalSku">-</div>
+          </div>
+          <div class="modal-meta-item">
+            <div class="modal-meta-label">MSKU</div>
+            <div class="modal-meta-value" id="modalMsku">-</div>
+          </div>
+          <div class="modal-meta-item">
+            <div class="modal-meta-label">仓库</div>
+            <div class="modal-meta-value" id="modalWarehouse">-</div>
+          </div>
+          <div class="modal-meta-item">
+            <div class="modal-meta-label">店铺</div>
+            <div class="modal-meta-value" id="modalStore">-</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th>操作时间</th>
+                <th>店铺</th>
+                <th>仓库</th>
+                <th>操作类型</th>
+                <th>变动数量</th>
+                <th>操作后库存</th>
+                <th>备注</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -561,6 +768,94 @@
       document.getElementById(id).classList.add('active');
       el.classList.add('active');
     }
+
+    const skuMeta = {
+      'AG-DJSP-55RB': { sku: 'AG-DJSP-55RB', msku: 'AMZEU-AG-DJSP-55RB', warehouse: 'FBA', store: 'Agilestic' },
+      'WF-55RB': { sku: 'WF-55RB', msku: 'WFUS-DJ-55RB', warehouse: 'CA003', store: 'Wayfair-A店铺' },
+      'WF-4DWA': { sku: 'WF-4DWA', msku: 'WFUS-BC-PA-4DWA', warehouse: 'NJ006', store: 'Wayfair-A店铺' },
+      'AG-WL-59RB-R': { sku: 'AG-WL-59RB-R', msku: 'AMZUS-AG-WL-59RB-R', warehouse: 'NJ006', store: 'Agilestic' },
+      'AG-DJW-55W': { sku: 'AG-DJW-55W', msku: 'AMZCA-AG-DJW-55W', warehouse: 'FBA', store: 'Agilestic' },
+      'ME-LD-DDB-51BL': { sku: 'ME-LD-DDB-51BL', msku: 'AMZUS-ME-LD-DDB-51BL', warehouse: 'CA003', store: 'Mericonia' },
+      'ME-LD-DDB-51WH': { sku: 'ME-LD-DDB-51WH', msku: 'AMZUS-ME-LD-DDB-51WH', warehouse: 'TX001', store: 'Mericonia' },
+      'WF-SJ-63W': { sku: 'WF-SJ-63W', msku: 'WFUS-SJ-63W', warehouse: 'FBM', store: 'Wayfair-A店铺' },
+      'WF-SDJ-YXWL-63B': { sku: 'WF-SDJ-YXWL-63B', msku: 'WFUS-SDJ-YXWL-63B', warehouse: 'FBM', store: 'Wayfair-A店铺' },
+      'AG-WL-59W': { sku: 'AG-WL-59W', msku: 'AMZUS-AG-WL-59W', warehouse: 'FBA', store: 'Agilestic' }
+    };
+
+    const logDataMap = {
+      'AG-DJSP-55RB': [
+        { time: '2025-01-20 14:25:11', store: 'Agilestic', warehouse: 'FBA', action: '人工拆分移库', qty: -2, after: 0, remark: '人工拆分移库' },
+        { time: '2025-01-20 11:08:32', store: 'Agilestic', warehouse: 'FBA', action: '本店无库存转扣', qty: -8, after: 2, remark: '本店无库存转扣' },
+        { time: '2025-01-20 10:01:12', store: 'Agilestic', warehouse: 'FBA', action: '人工退货入库', qty: 3, after: 10, remark: '人工退货入库' },
+        { time: '2025-01-19 18:20:44', store: 'Agilestic', warehouse: 'FBA', action: '库存调整', qty: -1, after: 7, remark: '' },
+        { time: '2025-01-19 15:09:18', store: 'Agilestic', warehouse: 'FBA', action: '人工拆分移库', qty: -4, after: 8, remark: '人工拆分移库' },
+        { time: '2025-01-19 09:43:05', store: 'Agilestic', warehouse: 'FBA', action: '本店无库存转扣', qty: -6, after: 12, remark: '本店无库存转扣' },
+        { time: '2025-01-18 17:32:50', store: 'Agilestic', warehouse: 'FBA', action: '人工退货入库', qty: 5, after: 18, remark: '人工退货入库' },
+        { time: '2025-01-18 11:14:22', store: 'Agilestic', warehouse: 'FBA', action: '库存调整', qty: -3, after: 13, remark: '' },
+        { time: '2025-01-17 16:08:09', store: 'Agilestic', warehouse: 'FBA', action: '人工拆分移库', qty: -2, after: 16, remark: '人工拆分移库' },
+        { time: '2025-01-17 08:36:41', store: 'Agilestic', warehouse: 'FBA', action: '人工退货入库', qty: 4, after: 18, remark: '人工退货入库' },
+        { time: '2025-01-16 19:05:27', store: 'Agilestic', warehouse: 'FBA', action: '入库', qty: 18, after: 18, remark: '' }
+      ],
+      'WF-55RB': [
+        { time: '2025-01-20 15:03:20', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '人工拆分移库', qty: -5, after: 6, remark: '人工拆分移库' },
+        { time: '2025-01-20 10:11:42', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '本店无库存转扣', qty: -3, after: 11, remark: '本店无库存转扣' },
+        { time: '2025-01-19 17:08:15', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '人工退货入库', qty: 2, after: 14, remark: '人工退货入库' },
+        { time: '2025-01-19 09:45:00', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '库存调整', qty: -1, after: 12, remark: '' },
+        { time: '2025-01-18 18:22:10', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '人工拆分移库', qty: -2, after: 13, remark: '人工拆分移库' },
+        { time: '2025-01-18 12:16:48', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '本店无库存转扣', qty: -4, after: 15, remark: '本店无库存转扣' },
+        { time: '2025-01-17 16:20:31', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '人工退货入库', qty: 3, after: 19, remark: '人工退货入库' },
+        { time: '2025-01-17 10:03:56', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '库存调整', qty: -2, after: 16, remark: '' },
+        { time: '2025-01-16 14:51:27', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '人工拆分移库', qty: -1, after: 17, remark: '人工拆分移库' },
+        { time: '2025-01-16 08:39:08', store: 'Wayfair-A店铺', warehouse: 'CA003', action: '入库', qty: 22, after: 22, remark: '' }
+      ]
+    };
+
+    function openLogModal(sku) {
+      const meta = skuMeta[sku] || { sku: sku, msku: '-', warehouse: '-', store: '-' };
+      const modal = document.getElementById('logModal');
+      const body = document.getElementById('logTableBody');
+
+      document.getElementById('modalSku').textContent = meta.sku;
+      document.getElementById('modalMsku').textContent = meta.msku;
+      document.getElementById('modalWarehouse').textContent = meta.warehouse;
+      document.getElementById('modalStore').textContent = meta.store;
+
+      const records = (logDataMap[sku] || []).slice().sort(function (a, b) {
+        return new Date(b.time) - new Date(a.time);
+      });
+
+      body.innerHTML = records.map(function (item) {
+        return (
+          '<tr>' +
+            '<td>' + item.time + '</td>' +
+            '<td>' + item.store + '</td>' +
+            '<td>' + item.warehouse + '</td>' +
+            '<td>' + item.action + '</td>' +
+            '<td>' + (item.qty > 0 ? '+' : '') + item.qty + '</td>' +
+            '<td>' + item.after + '</td>' +
+            '<td>' + (item.remark || '') + '</td>' +
+          '</tr>'
+        );
+      }).join('');
+
+      modal.classList.add('active');
+    }
+
+    function closeLogModal() {
+      document.getElementById('logModal').classList.remove('active');
+    }
+
+    function closeLogModalByMask(event) {
+      if (event.target.id === 'logModal') {
+        closeLogModal();
+      }
+    }
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        closeLogModal();
+      }
+    });
   </script>
 </body>
 </html>
